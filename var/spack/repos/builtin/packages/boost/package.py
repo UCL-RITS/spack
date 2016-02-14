@@ -103,7 +103,7 @@ class Boost(Package):
             return 'darwin'
 
         toolsets = {'g++': 'gcc',
-                    'icpc': 'intel',
+                    'icpc': 'intel-linux' if spec.satisfies('@1.60') else 'intel',
                     'clang++': 'clang'}
 
         for cc, toolset in toolsets.iteritems():
@@ -140,6 +140,7 @@ class Boost(Package):
             options.append('variant=debug')
         else:
             options.append('variant=release')
+        options.append('--debug-configuration')
 
         if '+icu_support' in spec:
             options.extend(['-s', 'ICU_PATH=%s' % spec['icu'].prefix])
@@ -202,6 +203,9 @@ class Boost(Package):
         b2_options = ['-j', '%s' % make_jobs]
 
         threadingOpts = self.determine_b2_options(spec, b2_options)
+
+        if self.determine_toolset(spec) == 'intel-linux':
+           filter_file(r'if . intel', r'if intel', 'project-config.jam')
 
         # In theory it could be done on one call but it fails on
         # Boost.MPI if the threading options are not separated.
