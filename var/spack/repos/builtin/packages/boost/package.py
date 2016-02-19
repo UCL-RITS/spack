@@ -99,12 +99,12 @@ class Boost(Package):
             dots, underscores)
 
     def determine_toolset(self, spec):
-        if spec.satisfies("=darwin-x86_64"):
-            return 'darwin'
-
         toolsets = {'g++': 'gcc',
-                    'icpc': 'intel-linux' if spec.satisfies('@1.60') else 'intel',
+                    'icpc': 'intel-linux',
                     'clang++': 'clang'}
+
+        if spec.satisfies("=darwin-x86_64"):
+          toolsets['icpc'] = 'intel-darwin'
 
         for cc, toolset in toolsets.iteritems():
             if cc in self.compiler.cxx_names:
